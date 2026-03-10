@@ -104,6 +104,19 @@ class SeatBookingSystem:
             print("Seat is already free")
             
             
+    # additional function to count and show the number of free seats
+    def show_available_seats(self):
+        count = 0
+
+        # loop through all rows and seats
+        for row in self.seats:
+            for seat in row:
+                if seat == "F":
+                    count += 1
+
+        print("Available seats:", count)
+            
+            
 # create object from the class
 main_menu = SeatBookingSystem()
 
@@ -118,7 +131,8 @@ def main():
         print("2. Book a seat")
         print("3. Free a seat")
         print("4. Show booking status")
-        print("5. Exit")
+        print("5. Show number of available seats")
+        print("6. Exit")
 
         choice = input("Choose an option: ")
 
@@ -135,6 +149,9 @@ def main():
             main_menu.show_booking_status()
 
         elif choice == "5":
+            main_menu.show_available_seats()
+
+        elif choice == "6":
             break
 
         else:
@@ -142,8 +159,7 @@ def main():
 
 
 # run the program
-main()
-            
+main()  
             
         
         
