@@ -1,5 +1,6 @@
 import random
 import string
+import sqlite3
 
 
 # class to store passenger information
@@ -29,8 +30,27 @@ class SeatBookingSystem:
                 row = ["F","F","F","X","F","F","F"]
 
             self.seats.append(row)
-        # dictionary to store booking details    
-        self.bookings = {}
+        
+        # create connection to SQLite database file
+        self.conn = sqlite3.connect("bookings.db")
+        
+        # create cursor to execute SQL commands
+        self.cursor = self.conn.cursor()
+        
+        # create bookings table to store passenger details
+        self.cursor.execute("""
+        CREATE TABLE IF NOT EXISTS bookings (
+            reference TEXT PRIMARY KEY,
+            first_name TEXT,
+            last_name TEXT,
+            passenger_number INTEGER,
+            seat_row INTEGER,
+            seat_column INTEGER
+        )
+        """)
+        
+        # save changes to the database
+        self.conn.commit()
         
         # counter to give each passenger a different number
         self.passenger_counter = 1
@@ -112,14 +132,14 @@ class SeatBookingSystem:
             # give the passenger a unique passenger number from passenger counter
             passenger_number = self.passenger_counter
 
-            # create passenger object
-            passenger = Passenger(first_name, last_name, passenger_number, booking_reference)
+            # insert booking details into the database table
+            self.cursor.execute("""
+            INSERT INTO bookings (reference, first_name, last_name, passenger_number, seat_row, seat_column)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """, (booking_reference, first_name, last_name, passenger_number, row, column))
             
-            self.bookings[booking_reference] = {
-                "passenger": passenger,
-                "seat_row": row,
-                "seat_column": column
-                }
+            # save booking into the database
+            self.conn.commit()
             
             # increase passenger number for the next booking
             self.passenger_counter += 1
@@ -157,13 +177,14 @@ class SeatBookingSystem:
             # make the seat free again
             self.seats[row-1][column] = "F"
             
-            # remove the related booking from the dictionary
-            for reference in list(self.bookings):
-                booking = self.bookings[reference]
-                
-                if booking["seat_row"] == row and booking["seat_column"] == column:
-                    del self.bookings[reference]
-                    break
+            # delete the booking from the database using seat location
+            self.cursor.execute("""
+            DELETE FROM bookings
+            WHERE seat_row = ? AND seat_column = ?
+            """, (row, column))
+            
+            # save changes after deleting booking
+            self.conn.commit()
                 
             print("Seat is now free")
 
