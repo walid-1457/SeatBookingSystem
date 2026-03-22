@@ -2,17 +2,6 @@ import random
 import string
 import sqlite3
 
-
-# class to store passenger information
-class Passenger:
-
-    def __init__(self, first_name, last_name, passenger_number, booking_reference):
-        self.first_name = first_name
-        self.last_name = last_name
-        self.passenger_number = passenger_number
-        self.booking_reference = booking_reference
-
-
 # class for the seat booking system
 class SeatBookingSystem:
     
